@@ -18,16 +18,7 @@ namespace Cw2.Models
         private String _tryb;
         private String _nrIndeksu;
 
-        [XmlAttribute(attributeName: "email")]
-        public string Email
-        {
-            get { return _email; }
-            set
-            {
-                _email = value ?? throw new ArgumentException();
-            }
-        }
-
+       
         [XmlElement(elementName: "fname")]
         public string Imie
         {
@@ -57,6 +48,16 @@ namespace Cw2.Models
                 _dataUrodzenia = value ?? throw new ArgumentException();
             }
         }
+        [XmlAttribute(attributeName: "email")]
+        public string Email
+        {
+            get { return _email; }
+            set
+            {
+                _email = value ?? throw new ArgumentException();
+            }
+        }
+
         [XmlElement(elementName: "mothersName")]
         public string ImieMatki
         {
@@ -93,7 +94,7 @@ namespace Cw2.Models
                 _tryb = value ?? throw new ArgumentException();
             }
         }
-        [XmlElement(elementName: "index")]
+        [XmlElement(elementName: "nrIndeksu=")]
         public string NrIndeksu     
         {
             get { return _nrIndeksu; }

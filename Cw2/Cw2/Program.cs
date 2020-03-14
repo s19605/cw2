@@ -10,66 +10,97 @@ namespace Cw2
     {
         static void Main(string[] args)
         {
+            string pathIn = @"Data\dane.csv";
+            string pathOut = "result.xml";
+            string format = "xml";
+
+            if (args.Length == 3)
+            {
+                pathIn = args[0];
+                pathOut = args[1];
+                format = args[2];
+            }
 
             var list = new List<Student>();
             var badList = new List<string>();
 
 
-            string path = @"Data\dane.csv";
-            Console.WriteLine("Hello World");
+            string path = pathIn;
 
             //Wczytywanie 
             var fi = new FileInfo(path);
-            using (var stream = new StreamReader(fi.OpenRead()))
+            try
             {
-                string line = null;
-                
-                while ((line = stream.ReadLine()) != null)
-       
+                using (var stream = new StreamReader(fi.OpenRead()))
                 {
+                    string line = null;
+                    int check = 0;
 
-                    string[] kolumny = line.Split(',');
-                    Console.WriteLine(line);
-                    if (kolumny.Length == 9)
+                    while ((line = stream.ReadLine()) != null)
                     {
-                        list.Add(new Student()
-                        {
-                            Imie = kolumny[0],
-                            Nazwisko = kolumny[1],
-                            Studia = kolumny[2],
-                            Tryb = kolumny[3],
-                            NrIndeksu = kolumny[4],
-                            DataUrodzenia = kolumny[5],
-                            Email = kolumny[6],
-                            ImieMatki = kolumny[7],
-                            ImieOjca = kolumny[8]
 
-                        });
-                    } else
-                    {
-                        string str = "";
-                        for (int i = 0; i < kolumny.Length; i++)
+                        check = 0;
+
+                        string[] kolumny = line.Split(',');
+                        foreach (string s in kolumny)
                         {
-                            str += kolumny[i];
+                            if (String.IsNullOrWhiteSpace(s) || kolumny.Length != 9)
+                            {
+                                check = 1;
+                                line = "[NIEPRAWIDLOWY FORMAT]" + line;
+                                badList.Add(line);
+                                break;
+                            }
                         }
-                        badList.Add(str);
+
+                        if (check == 1)
+                            continue;
+
+                        Console.WriteLine(line);
+                        if (kolumny.Length == 9)
+                        {
+                            list.Add(new Student()
+                            {
+                                Imie = kolumny[0],
+                                Nazwisko = kolumny[1],
+                                Studia = kolumny[2],
+                                Tryb = kolumny[3],
+                                NrIndeksu = kolumny[4],
+                                DataUrodzenia = kolumny[5],
+                                Email = kolumny[6],
+                                ImieMatki = kolumny[7],
+                                ImieOjca = kolumny[8]
+
+                            });
+                        }
                     }
                 }
             }
-            //stream.Dispose();
-
-            //XML
-            var st = new Student
+            catch (FileNotFoundException e1)
             {
-                Imie="Jan",
-                Nazwisko="Kowalski",
-                Email="kowalski@wp.pl"
-            
-            };
+                badList.Add(e1.Message + "Podana ścieżka jest niepoprawna");
+                Console.WriteLine(e1.Message + "Podana ścieżka jest niepoprawna");
+                return;
 
-            list.Add(st);
+            }
+            catch (ArgumentException e2)
+            {
+                Console.WriteLine(e2.Message + "Podana ścieżka jest niepoprawna");
+                badList.Add(e2.Message + "Podana ścieżka jest niepoprawna");
+                return;
+            }
+            catch (Exception e3)
+            {
+                Console.WriteLine(e3.Message);
+                badList.Add(e3.Message);
+                return;
+            }
 
-            FileStream writer = new FileStream("data.xml", FileMode.CreateNew);
+                //stream.Dispose();
+
+                //XML
+
+                FileStream writer = new FileStream(pathOut, FileMode.Create);
             XmlSerializer serializer = new XmlSerializer(typeof(List<Student>),
                                        new XmlRootAttribute("uczelnia"));
             serializer.Serialize(writer, list);
@@ -78,7 +109,10 @@ namespace Cw2
             using (TextWriter writer1 = new StreamWriter("log.txt"))
             {
                 foreach (String s in badList)
+                {
+                    Console.WriteLine(s);
                     writer1.WriteLine(s);
+                }
             }
         }
     }
